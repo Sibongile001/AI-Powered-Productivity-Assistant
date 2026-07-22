@@ -9,8 +9,32 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ResponsibleAiRouteImport } from './routes/responsible-ai'
+import { Route as ResearchAssistantRouteImport } from './routes/research-assistant'
+import { Route as MeetingSummarizerRouteImport } from './routes/meeting-summarizer'
+import { Route as AiTaskPlannerRouteImport } from './routes/ai-task-planner'
 import { Route as IndexRouteImport } from './routes/index'
 
+const ResponsibleAiRoute = ResponsibleAiRouteImport.update({
+  id: '/responsible-ai',
+  path: '/responsible-ai',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResearchAssistantRoute = ResearchAssistantRouteImport.update({
+  id: '/research-assistant',
+  path: '/research-assistant',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MeetingSummarizerRoute = MeetingSummarizerRouteImport.update({
+  id: '/meeting-summarizer',
+  path: '/meeting-summarizer',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AiTaskPlannerRoute = AiTaskPlannerRouteImport.update({
+  id: '/ai-task-planner',
+  path: '/ai-task-planner',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -19,28 +43,88 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/ai-task-planner': typeof AiTaskPlannerRoute
+  '/meeting-summarizer': typeof MeetingSummarizerRoute
+  '/research-assistant': typeof ResearchAssistantRoute
+  '/responsible-ai': typeof ResponsibleAiRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/ai-task-planner': typeof AiTaskPlannerRoute
+  '/meeting-summarizer': typeof MeetingSummarizerRoute
+  '/research-assistant': typeof ResearchAssistantRoute
+  '/responsible-ai': typeof ResponsibleAiRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/ai-task-planner': typeof AiTaskPlannerRoute
+  '/meeting-summarizer': typeof MeetingSummarizerRoute
+  '/research-assistant': typeof ResearchAssistantRoute
+  '/responsible-ai': typeof ResponsibleAiRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/ai-task-planner'
+    | '/meeting-summarizer'
+    | '/research-assistant'
+    | '/responsible-ai'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/ai-task-planner'
+    | '/meeting-summarizer'
+    | '/research-assistant'
+    | '/responsible-ai'
+  id:
+    | '__root__'
+    | '/'
+    | '/ai-task-planner'
+    | '/meeting-summarizer'
+    | '/research-assistant'
+    | '/responsible-ai'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AiTaskPlannerRoute: typeof AiTaskPlannerRoute
+  MeetingSummarizerRoute: typeof MeetingSummarizerRoute
+  ResearchAssistantRoute: typeof ResearchAssistantRoute
+  ResponsibleAiRoute: typeof ResponsibleAiRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/responsible-ai': {
+      id: '/responsible-ai'
+      path: '/responsible-ai'
+      fullPath: '/responsible-ai'
+      preLoaderRoute: typeof ResponsibleAiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/research-assistant': {
+      id: '/research-assistant'
+      path: '/research-assistant'
+      fullPath: '/research-assistant'
+      preLoaderRoute: typeof ResearchAssistantRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/meeting-summarizer': {
+      id: '/meeting-summarizer'
+      path: '/meeting-summarizer'
+      fullPath: '/meeting-summarizer'
+      preLoaderRoute: typeof MeetingSummarizerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ai-task-planner': {
+      id: '/ai-task-planner'
+      path: '/ai-task-planner'
+      fullPath: '/ai-task-planner'
+      preLoaderRoute: typeof AiTaskPlannerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -53,6 +137,10 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AiTaskPlannerRoute: AiTaskPlannerRoute,
+  MeetingSummarizerRoute: MeetingSummarizerRoute,
+  ResearchAssistantRoute: ResearchAssistantRoute,
+  ResponsibleAiRoute: ResponsibleAiRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
