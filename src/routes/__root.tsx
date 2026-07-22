@@ -11,6 +11,9 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/app-sidebar";
+import { Separator } from "@/components/ui/separator";
 
 function NotFoundComponent() {
   return (
@@ -77,14 +80,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "AI Workplace Productivity Assistant" },
+      { name: "description", content: "Automate daily work tasks using AI — summarize meetings, organize tasks, and research workplace topics." },
+      { name: "author", content: "Dorcus Sibongile Dlamini" },
+      { property: "og:title", content: "AI Workplace Productivity Assistant" },
+      { property: "og:description", content: "Automate daily work tasks using AI — summarize meetings, organize tasks, and research workplace topics." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:site", content: "@Lovable" },
     ],
     links: [
       {
@@ -119,8 +121,38 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <SidebarProvider>
+        <div className="flex min-h-screen w-full">
+          <AppSidebar />
+          <div className="flex flex-1 flex-col">
+            <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+              <SidebarTrigger className="-ml-1" />
+              <Separator orientation="vertical" className="hidden h-6 sm:block" />
+              <div className="flex min-w-0 flex-1 items-center justify-between gap-4">
+                <h1 className="truncate text-base font-semibold tracking-tight sm:text-lg">
+                  AI Workplace Productivity Assistant
+                </h1>
+                <div className="hidden text-xs text-muted-foreground sm:block">
+                  ASA 11
+                </div>
+              </div>
+            </header>
+            <main className="flex-1">
+              <Outlet />
+            </main>
+            <footer className="border-t bg-muted/30 px-4 py-4">
+              <div className="flex flex-col items-center justify-between gap-2 text-center sm:flex-row sm:text-left">
+                <p className="text-sm font-medium text-foreground">
+                  Created by Dorcus Sibongile Dlamini
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  AI Skills Acceleration Programme (ASA 11)
+                </p>
+              </div>
+            </footer>
+          </div>
+        </div>
+      </SidebarProvider>
     </QueryClientProvider>
   );
 }
