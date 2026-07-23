@@ -1,10 +1,31 @@
+import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { ListTodo, Plus, Calendar, Clock, CheckCircle2 } from "lucide-react";
+import { useMutation } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import {
+  ListTodo,
+  Sparkles,
+  Loader2,
+  AlertCircle,
+  Flame,
+  Target,
+  Leaf,
+  CalendarClock,
+  Lightbulb,
+  RotateCcw,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { generateTaskPlan, type TaskPlan } from "@/lib/ai-task-planner.functions";
 
 export const Route = createFileRoute("/ai-task-planner")({
   head: () => ({
@@ -18,18 +39,45 @@ export const Route = createFileRoute("/ai-task-planner")({
   component: AiTaskPlannerPage,
 });
 
-const sampleTasks = [
-  { title: "Review Q3 project proposal", priority: "High", due: "Today" },
-  { title: "Draft follow-up email to client", priority: "Medium", due: "Tomorrow" },
-  { title: "Prepare slides for team sync", priority: "High", due: "Wed" },
-  { title: "Research competitor updates", priority: "Low", due: "Fri" },
+const sections: {
+  key: keyof TaskPlan;
+  title: string;
+  description: string;
+  icon: React.ElementType;
+  accent: string;
+}[] = [
+  { key: "highPriority", title: "High Priority", description: "Urgent and important", icon: Flame, accent: "text-red-600 bg-red-500/10" },
+  { key: "mediumPriority", title: "Medium Priority", description: "Important, not urgent", icon: Target, accent: "text-amber-600 bg-amber-500/10" },
+  { key: "lowPriority", title: "Low Priority", description: "Nice to have", icon: Leaf, accent: "text-emerald-600 bg-emerald-500/10" },
+  { key: "dailySchedule", title: "Suggested Daily Schedule", description: "Time-blocked plan", icon: CalendarClock, accent: "text-blue-600 bg-blue-500/10" },
+  { key: "productivityTips", title: "Productivity Tips", description: "Tailored to your goals", icon: Lightbulb, accent: "text-violet-600 bg-violet-500/10" },
 ];
 
 function AiTaskPlannerPage() {
+  const [goals, setGoals] = useState("");
+  const [plan, setPlan] = useState<TaskPlan | null>(null);
+  const generate = useServerFn(generateTaskPlan);
+
+  const mutation = useMutation({
+    mutationFn: generate,
+    onSuccess: (data) => setPlan(data),
+  });
+
+  const handleGenerate = () => {
+    if (!goals.trim()) return;
+    mutation.mutate({ data: { goals } });
+  };
+
+  const handleClear = () => {
+    setGoals("");
+    setPlan(null);
+    mutation.reset();
+  };
+
   return (
     <div className="space-y-6 px-4 py-6 md:px-8 md:py-8">
       <div className="flex min-w-0 items-center gap-3">
-        <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
+        <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-primary to-primary/70 text-primary-foreground shadow-sm">
           <ListTodo className="h-5 w-5" />
         </div>
         <div className="min-w-0">
@@ -37,97 +85,115 @@ function AiTaskPlannerPage() {
             AI Task Planner
           </h1>
           <p className="text-sm text-muted-foreground">
-            Organize, prioritize, and plan your work with AI assistance.
+            Turn goals and to-dos into a prioritized, actionable plan.
           </p>
         </div>
       </div>
 
-      <Card>
+      <Card className="border-border/60 shadow-sm">
         <CardHeader>
-          <CardTitle className="text-base">Create a smart plan</CardTitle>
+          <CardTitle className="text-base">Describe your tasks & goals</CardTitle>
           <CardDescription>
-            Describe your goals or paste meeting action items to generate a prioritized task list.
+            List your tasks, goals, or paste meeting action items. The AI will
+            prioritize them and build a daily schedule.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <Input
-              placeholder="e.g. Prepare product launch, follow up with design team..."
-              className="flex-1"
-            />
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              Generate plan
+          <Textarea
+            placeholder="e.g. Prepare Q3 launch deck, follow up with design team, review 5 pull requests, book venue for offsite, prep 1:1 agenda..."
+            value={goals}
+            onChange={(e) => setGoals(e.target.value)}
+            className="min-h-[180px] resize-y"
+          />
+          <div className="flex flex-wrap gap-2">
+            <Button
+              onClick={handleGenerate}
+              disabled={mutation.isPending || !goals.trim()}
+              className="shadow-sm transition-all hover:shadow-md"
+            >
+              {mutation.isPending ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Sparkles className="mr-2 h-4 w-4" />
+              )}
+              Generate Plan
+            </Button>
+            <Button variant="outline" onClick={handleClear} disabled={!goals && !plan}>
+              <RotateCcw className="mr-2 h-4 w-4" />
+              Clear
             </Button>
           </div>
         </CardContent>
       </Card>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle className="text-base">Your prioritized tasks</CardTitle>
-            <CardDescription>
-              AI-suggested order based on urgency and impact.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ul className="space-y-3">
-              {sampleTasks.map((task, index) => (
-                <li
-                  key={index}
-                  className="flex items-start justify-between gap-4 rounded-lg border p-3 transition-colors hover:bg-muted/30"
+      {mutation.isPending && (
+        <Card className="border-dashed">
+          <CardContent className="flex flex-col items-center justify-center gap-3 py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <p className="text-sm font-medium text-foreground">AI is building your plan...</p>
+            <p className="text-xs text-muted-foreground">Prioritizing tasks and scheduling your day.</p>
+          </CardContent>
+        </Card>
+      )}
+
+      {mutation.isError && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Something went wrong</AlertTitle>
+          <AlertDescription>
+            {mutation.error instanceof Error
+              ? mutation.error.message
+              : "Unable to generate your plan. Please try again."}
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {plan && !mutation.isPending && (
+        <div className="space-y-4 animate-fade-in">
+          <h2 className="text-lg font-semibold tracking-tight text-foreground">
+            Your AI-generated plan
+          </h2>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {sections.map((section) => {
+              const items = plan[section.key];
+              return (
+                <Card
+                  key={section.key}
+                  className="flex flex-col border-border/60 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
                 >
-                  <div className="flex min-w-0 items-start gap-3">
-                    <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-medium text-foreground">
-                        {task.title}
-                      </p>
-                      <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                        <span className="inline-flex items-center gap-1">
-                          <Calendar className="h-3 w-3" />
-                          {task.due}
-                        </span>
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center gap-3">
+                      <div className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl ${section.accent}`}>
+                        <section.icon className="h-4 w-4" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-base">{section.title}</CardTitle>
+                        <CardDescription className="text-xs">
+                          {section.description}
+                        </CardDescription>
                       </div>
                     </div>
-                  </div>
-                  <Badge
-                    variant={task.priority === "High" ? "default" : "secondary"}
-                    className="shrink-0"
-                  >
-                    {task.priority}
-                  </Badge>
-                </li>
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Daily focus</CardTitle>
-            <CardDescription>
-              Estimated time and top priorities for today.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center gap-3 rounded-lg border p-3">
-              <Clock className="h-5 w-5 text-primary" />
-              <div>
-                <p className="text-sm font-medium">4 hours planned</p>
-                <p className="text-xs text-muted-foreground">Across 4 tasks</p>
-              </div>
-            </div>
-            <div className="rounded-lg bg-primary/5 p-3">
-              <p className="text-xs font-medium text-primary">Top priority</p>
-              <p className="mt-1 text-sm text-foreground">
-                Review Q3 project proposal
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+                  </CardHeader>
+                  <CardContent className="flex-1">
+                    <ul className="space-y-2">
+                      {items.length > 0 ? (
+                        items.map((item, index) => (
+                          <li key={index} className="flex gap-2 text-sm text-foreground">
+                            <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
+                            <span className="leading-relaxed">{item}</span>
+                          </li>
+                        ))
+                      ) : (
+                        <li className="text-sm text-muted-foreground">No items listed.</li>
+                      )}
+                    </ul>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
