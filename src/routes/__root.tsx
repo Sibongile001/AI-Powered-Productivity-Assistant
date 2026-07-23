@@ -80,13 +80,17 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "AI Workplace Productivity Assistant" },
-      { name: "description", content: "Automate daily work tasks using AI — summarize meetings, organize tasks, and research workplace topics." },
+      { title: "Dashboard — AI Workplace Productivity Assistant" },
+      { name: "description", content: "Overview of the AI-Powered Workplace Productivity Assistant dashboard." },
       { name: "author", content: "Dorcus Sibongile Dlamini" },
-      { property: "og:title", content: "AI Workplace Productivity Assistant" },
-      { property: "og:description", content: "Automate daily work tasks using AI — summarize meetings, organize tasks, and research workplace topics." },
+      { property: "og:title", content: "Dashboard — AI Workplace Productivity Assistant" },
+      { property: "og:description", content: "Overview of the AI-Powered Workplace Productivity Assistant dashboard." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Dashboard — AI Workplace Productivity Assistant" },
+      { name: "twitter:description", content: "Overview of the AI-Powered Workplace Productivity Assistant dashboard." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/bba74206-5440-49b4-82aa-a2d294d84975/id-preview-8270704c--712f22f2-e7c1-411f-a829-2abf9e4014a6.lovable.app-1784787410725.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/bba74206-5440-49b4-82aa-a2d294d84975/id-preview-8270704c--712f22f2-e7c1-411f-a829-2abf9e4014a6.lovable.app-1784787410725.png" },
     ],
     links: [
       {
