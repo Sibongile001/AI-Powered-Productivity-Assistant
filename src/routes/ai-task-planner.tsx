@@ -26,6 +26,8 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { generateTaskPlan, type TaskPlan } from "@/lib/ai-task-planner.functions";
+import { recordActivity } from "@/lib/activity-store";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/ai-task-planner")({
   head: () => ({
@@ -60,7 +62,14 @@ function AiTaskPlannerPage() {
 
   const mutation = useMutation({
     mutationFn: generate,
-    onSuccess: (data) => setPlan(data),
+    onSuccess: (data) => {
+      setPlan(data);
+      recordActivity("task", goals);
+      toast.success("Task plan generated");
+    },
+    onError: (err) => {
+      toast.error(err instanceof Error ? err.message : "Failed to generate plan");
+    },
   });
 
   const handleGenerate = () => {
