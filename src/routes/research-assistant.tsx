@@ -26,6 +26,8 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { runResearch, type ResearchResult } from "@/lib/research-assistant.functions";
+import { recordActivity } from "@/lib/activity-store";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/research-assistant")({
   head: () => ({
@@ -55,7 +57,15 @@ function ResearchAssistantPage() {
 
   const mutation = useMutation({
     mutationFn: research,
-    onSuccess: (data) => setResult(data),
+    onSuccess: (data, variables) => {
+      setResult(data);
+      const requested = (variables as { data: { topic: string } })?.data?.topic ?? topic;
+      recordActivity("research", requested);
+      toast.success("Research ready");
+    },
+    onError: (err) => {
+      toast.error(err instanceof Error ? err.message : "Failed to run research");
+    },
   });
 
   const runFor = (value: string) => {

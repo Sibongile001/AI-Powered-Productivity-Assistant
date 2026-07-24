@@ -14,6 +14,8 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { Separator } from "@/components/ui/separator";
+import { Toaster } from "@/components/ui/sonner";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 function NotFoundComponent() {
   return (
@@ -107,10 +109,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 });
 
 function RootShell({ children }: { children: ReactNode }) {
+  const themeScript = `(function(){try{var t=localStorage.getItem('awpa:theme');if(!t){t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}if(t==='dark'){document.documentElement.classList.add('dark');}document.documentElement.style.colorScheme=t;}catch(e){}})();`;
   return (
     <html lang="en">
       <head>
         <HeadContent />
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body>
         {children}
@@ -136,8 +140,11 @@ function RootComponent() {
                 <h1 className="truncate text-base font-semibold tracking-tight sm:text-lg">
                   AI Workplace Productivity Assistant
                 </h1>
-                <div className="hidden text-xs text-muted-foreground sm:block">
-                  ASA 11
+                <div className="flex items-center gap-2">
+                  <span className="hidden text-xs text-muted-foreground sm:block">
+                    ASA 11
+                  </span>
+                  <ThemeToggle />
                 </div>
               </div>
             </header>
@@ -156,6 +163,7 @@ function RootComponent() {
             </footer>
           </div>
         </div>
+        <Toaster />
       </SidebarProvider>
     </QueryClientProvider>
   );

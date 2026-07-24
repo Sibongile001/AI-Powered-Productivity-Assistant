@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -28,6 +29,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { summarizeMeeting, type MeetingSummary } from "@/lib/meeting-summarizer.functions";
+import { recordActivity } from "@/lib/activity-store";
 
 export const Route = createFileRoute("/meeting-summarizer")({
   head: () => ({
@@ -63,6 +65,11 @@ function MeetingSummarizerPage() {
     mutationFn: summarize,
     onSuccess: (data) => {
       setSummary(data);
+      recordActivity("meeting", data.executiveSummary || "Meeting summary");
+      toast.success("Meeting summary generated");
+    },
+    onError: (err) => {
+      toast.error(err instanceof Error ? err.message : "Failed to generate summary");
     },
   });
 
@@ -89,6 +96,7 @@ function MeetingSummarizerPage() {
       })
       .join("\n\n");
     await navigator.clipboard.writeText(text);
+    toast.success("Summary copied to clipboard");
   };
 
   return (
